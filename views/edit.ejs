@@ -1,0 +1,110 @@
+<%- include('partials/header', { title: 'Edit Workout' }) %>
+
+<div class="container mt-4">
+    <a href="/workouts/<%= workout.id %>" class="back-link">&larr; Back to Workout</a>
+
+    <div class="form-wrapper mt-3">
+        <h1 class="form-page-title">Edit Workout</h1>
+        <p class="form-page-sub">Update your session details below.</p>
+
+        <% if (error) { %>
+        <div class="alert-custom alert-error"><%= error %></div>
+        <% } %>
+
+        <form method="POST" action="/edit/<%= workout.id %>" class="workout-form">
+            <div class="form-grid">
+                <div class="form-group" name="name">
+                    <label class="form-label">Workout Name <span class="required">*</span></label>
+                    <input type="text" name="name" class="form-control custom-input" value="<%= workout.name %>" required>
+                </div>
+
+                <div class="form-group" name="date">
+                    <label class="form-label">Date <span class="required">*</span></label>
+                    <input type="date" name="date" class="form-control custom-input" value="<%= workout.date %>" required>
+                </div>
+
+                <div class="form-group" name="workouttype">
+                    <label class="form-label">Workout Type <span class="required">*</span></label>
+                    <select name="type" class="form-select custom-input" required>
+                        <% WORKOUT_TYPES.forEach(t => { %>
+                        <option value="<%= t %>" <%= workout.type === t ? 'selected' : '' %>><%= t %></option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="form-group" name="duration">
+                    <label class="form-label">Duration (minutes) <span class="required">*</span></label>
+                    <input type="number" name="duration" class="form-control custom-input" value="<%= workout.duration %>" min="1" max="300" required>
+                </div>
+
+                <div class="form-group form-group-full" name="exercises">
+                    <label class="form-label">Exercises <span class="required">*</span></label>
+                    <input type="text" name="exercises" class="form-control custom-input" value="<%= workout.exercises %>" required>
+                </div>
+
+                <div class="form-group" name="calories">
+                    <label class="form-label">Calories Burned</label>
+                    <input type="number" name="calories" class="form-control custom-input" value="<%= workout.calories %>" min="0">
+                </div>
+
+                <div class="form-group" name="intensity">
+                    <label class="form-label">Intensity Level (1–5)</label>
+                    <div class="range-wrapper">
+                        <input type="range" name="intensity" class="form-range custom-range" min="1" max="5" value="<%= workout.intensity %>" id="intensityRange">
+                        <span class="range-val" id="intensityVal"><%= workout.intensity %></span>
+                    </div>
+                    <div class="range-labels">
+                        <span>Easy</span><span>Max Effort</span>
+                    </div>
+                </div>
+
+                <div class="form-group" name="rating">
+                    <label class="form-label">Session Rating (1–5)</label>
+                    <div class="star-picker" id="starPicker">
+                        <% for(let i = 1; i <= 5; i++) { %>
+                        <span class="star-pick" data-val="<%= i %>">★</span>
+                        <% } %>
+                    </div>
+                    <input type="hidden" name="rating" id="ratingInput" value="<%= workout.rating %>">
+                </div>
+
+                <div class="form-group form-group-full" name="notes">
+                    <label class="form-label">Notes</label>
+                    <textarea name="notes" class="form-control custom-input" rows="3"><%= workout.notes %></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-add btn-lg-custom">Save Changes</button>
+                <a href="/workouts/<%= workout.id %>" class="btn btn-ghost">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const range = document.getElementById('intensityRange');
+    const val = document.getElementById('intensityVal');
+    range.addEventListener('input', () => val.textContent = range.value);
+
+    const stars = document.querySelectorAll('.star-pick');
+    const ratingInput = document.getElementById('ratingInput');
+    let currentRating = '<%= workout.rating %>';
+
+    function updateStars(n) {
+        stars.forEach((s, i) => s.classList.toggle('star-pick-active', i < n));
+        ratingInput.value = n;
+        currentRating = n;
+    }
+    updateStars(currentRating);
+    stars.forEach((s, i) => {
+        s.addEventListener('click', () => updateStars(i + 1));
+        s.addEventListener('mouseover', () => {
+            stars.forEach((ss, ii) => ss.classList.toggle('star-pick-hover', ii <= i));
+        });
+        s.addEventListener('mouseout', () => {
+            stars.forEach(ss => ss.classList.remove('star-pick-hover'));
+            updateStars(currentRating);
+        });
+    });
+</script>

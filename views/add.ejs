@@ -1,0 +1,117 @@
+<%- include('partials/header', { title: 'Log Workout' }) %>
+
+<div class="container mt-4">
+    <a href="/workouts" class="back-link">&larr; Back to All Workouts</a>
+
+    <div class="form-wrapper mt-3">
+        <h1 class="form-page-title">Log a New Workout</h1>
+        <p class="form-page-sub">Every session counts. Track it here.</p>
+
+        <% if (error) { %>
+        <div class="alert-custom alert-error"><%= error %></div>
+        <% } %>
+
+        <form method="POST" action="/add" class="workout-form">
+            <div class="form-grid">
+                <div class="form-group">
+                    <label class="form-label">Workout Name <span class="required">*</span></label>
+                    <input type="text" name="name" class="form-control custom-input" placeholder="e.g. Morning Push Day" required/>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Date <span class="required">*</span></label>
+                    <input type="date" name="date" class="form-control custom-input" value="<%= new Date().toISOString().split('T')[0] %>" required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Workout Type <span class="required">*</span></label>
+                    <select name="type" class="form-select custom-input" required>
+                        <option value="">Select type...</option>
+                        <% WORKOUT_TYPES.forEach(t => { %>
+                        <option value="<%= t %>"><%= t %></option>
+                        <% }) %>
+                    </select>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Duration (minutes)<span class="required">*</span></label>
+                    <input type="number" name="duration" class="form-control custom-input" placeholder="e.g. 60" min="1" required />
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label class="form-label">Exercises <span class="required">*</span></label>
+                    <input type="text" name="exercises" class="form-control custom-input" placeholder="e.g. Bench Press, Squats, Pull-ups (comma separated)" required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Calories Burned</label>
+                    <input type="number" name="calories" class="form-control custom-input" placeholder="e.g. 450" min="0" />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Intensity Level (1–5)</label>
+                    <div class="range-wrapper">
+                        <input type="range" name="intensity" class="form-range custom-range" min="1" max="5" value="3" id="intensityRange" />
+                        <span class="range-val" id="intensityVal">3</span>
+                    </div>
+                    <div class="range-labels">
+                        <span>Easy</span><span>Max Effort</span>
+                    </div>
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Session Rating (1–5)</label>
+                    <div class="star-picker" id="starPicker">
+                        <% for(let i = 1; i <= 5; i++) { %>
+                        <span class="star-pick" data-val="<%= i %>">★</span>
+                        <% } %>
+                    </div>
+                    <input type="hidden" name="rating" id="ratingInput" value="3" />
+                </div>
+
+                <div class="form-group form-group-full">
+                    <label class="form-label">Notes</label>
+                    <textarea name="notes" class="form-control custom-input" rows="3" placeholder="How did it go? Any PRs? How did you feel?"></textarea>
+                </div>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-add btn-lg-custom">
+                    💪 Log Workout
+                </button>
+                <a href="/workouts" class="btn btn-ghost">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    const range = document.getElementById("intensityRange");
+    const val = document.getElementById("intensityVal");
+    range.addEventListener("input", () => (val.textContent = range.value));
+
+    const stars = document.querySelectorAll(".star-pick");
+    const ratingInput = document.getElementById("ratingInput");
+    let currentRating = 3;
+
+    function updateStars(n) {
+        stars.forEach((s, i) => {
+            s.classList.toggle("star-pick-active", i < n);
+        });
+        ratingInput.value = n;
+        currentRating = n;
+    }
+    updateStars(3);
+    stars.forEach((s, i) => {
+        s.addEventListener("click", () => updateStars(i + 1));
+        s.addEventListener("mouseover", () => {
+            stars.forEach((ss, ii) =>
+                ss.classList.toggle("star-pick-hover", ii <= i)
+            );
+        });
+        s.addEventListener("mouseout", () => {
+            stars.forEach((ss) => ss.classList.remove("star-pick-hover"));
+            updateStars(currentRating);
+        });
+    });
+</script>

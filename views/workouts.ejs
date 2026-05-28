@@ -1,0 +1,133 @@
+<%- include('partials/header', { title: 'All Workouts' }) %>
+
+<div class="page-header-bar">
+    <div class="container">
+        <div class="d-flex align-items-center justify-content-between flex-wrap gap-2">
+            <h1 class="page-title">All Workouts</h1>
+            <a href="/add" class="btn btn-add">+ Log Workout</a>
+        </div>
+    </div>
+</div>
+
+<div class="container mt-4">
+
+    <!-- SEARCH & FILTERS -->
+    <form method="GET" action="/workouts" class="filter-bar mb-4">
+        <div class="row g-2 align-items-end">
+            <div class="col-12 col-md-4">
+                <label class="filter-label">Search</label>
+                <input type="text" name="search" class="form-control filter-input" placeholder="Search workouts, exercises..." value="<%= search %>">
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="filter-label">Type</label>
+                <select name="type" class="form-select filter-input">
+                    <option value="">All Types</option>
+                    <% WORKOUT_TYPES.forEach(t => { %>
+                    <option value="<%= t %>" <%= type === t ? 'selected' : '' %>><%= t %></option>
+                    <% }) %>
+                </select>
+            </div>
+            <div class="col-6 col-md-3">
+                <label class="filter-label">Sort by</label>
+                <select name="sort" class="form-select filter-input">
+                    <option value="date-desc" <%= sort === 'date-desc' ? 'selected' : '' %>>Newest First</option>
+                    <option value="date-asc" <%= sort === 'date-asc' ? 'selected' : '' %>>Oldest First</option>
+                    <option value="rating-desc" <%= sort === 'rating-desc' ? 'selected' : '' %>>Highest Rated</option>
+                    <option value="duration-desc" <%= sort === 'duration-desc' ? 'selected' : '' %>>Longest Duration</option>
+                    <option value="calories-desc" <%= sort === 'calories-desc' ? 'selected' : '' %>>Most Calories</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-2">
+                <label class="filter-label">Favourites</label>
+                <select name="favourites" class="form-select filter-input">
+                    <option value="">All</option>
+                    <option value="true" <%= favourites === 'true' ? 'selected' : '' %>>Favourites Only</option>
+                </select>
+            </div>
+            <div class="col-6 col-md-1 d-flex gap-1">
+                <button type="submit" class="btn btn-add w-100">Go</button>
+            </div>
+        </div>
+        <% if (search || type || favourites === 'true') { %>
+        <div class="active-filters mt-2">
+            <span class="filter-tag">
+                <% if (search) { %>Search: "<%= search %>"<% } %>
+                <% if (type) { %> Type: <%= type %><% } %>
+                <% if (favourites === 'true') { %> ★ Favourites<% } %>
+            </span>
+            <a href="/workouts" class="clear-filters">Clear all</a>
+        </div>
+        <% } %>
+    </form>
+
+    <!-- RESULTS COUNT -->
+    <p class="results-count mb-3"><%= workouts.length %> workout<%= workouts.length !== 1 ? 's' : '' %> found</p>
+
+    <% if (workouts.length === 0) { %>
+    <div class="empty-state">
+        <p class="empty-icon">💪</p>
+        <p class="empty-title">No workouts found</p>
+        <p class="empty-sub">Try adjusting your filters or log a new workout!</p>
+        <a href="/add" class="btn btn-add mt-2">+ Log Workout</a>
+    </div>
+    <% } else { %>
+    <div class="workout-table-wrapper">
+        <table class="workout-table">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th>Workout</th>
+                    <th>Date</th>
+                    <th>Type</th>
+                    <th>Duration</th>
+                    <th>Calories</th>
+                    <th>Intensity</th>
+                    <th>Rating</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                <% workouts.forEach(w => { %>
+                <tr class="workout-row">
+                    <td>
+                        <form method="POST" action="/favourite/<%= w.id %>">
+                            <button type="submit" class="fav-btn <%= w.favourite ? 'fav-active' : '' %>" title="Toggle favourite">★</button>
+                        </form>
+                    </td>
+                    <td>
+                        <a href="/workouts/<%= w.id %>" class="workout-name-link"><%= w.name %></a>
+                        <p class="workout-exercises-preview"><%= w.exercises.length > 40 ? w.exercises.substring(0, 40) + '...' : w.exercises %></p>
+                    </td>
+                    <td class="td-muted"><%= new Date(w.date).toLocaleDateString('en-SG', { day: 'numeric', month: 'short', year: 'numeric' }) %></td>
+                    <td><span class="type-badge type-<%= w.type.toLowerCase().replace(' ', '-') %>"><%= w.type %></span></td>
+                    <td class="td-muted"><%= w.duration %> min</td>
+                    <td class="td-muted"><%= w.calories %> kcal</td>
+                    <td>
+                        <div class="intensity-dots">
+                            <% for(let i = 1; i <= 5; i++) { %>
+                            <span class="dot <%= i <= w.intensity ? 'dot-active' : '' %>"></span>
+                            <% } %>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="rating-stars-sm">
+                            <% for(let i = 1; i <= 5; i++) { %>
+                            <span class="<%= i <= w.rating ? 'star-filled' : 'star-empty' %>">★</span>
+                            <% } %>
+                        </div>
+                    </td>
+                    <td>
+                        <div class="action-btns">
+                            <a href="/edit/<%= w.id %>" class="btn-icon btn-edit" title="Edit">✏️</a>
+                            <form method="POST" action="/delete/<%= w.id %>" class="d-inline">
+                                <button type="submit" class="btn-icon btn-delete" title="Delete">🗑️</button>
+                            </form>
+                        </div>
+                    </td>
+                </tr>
+                <% }) %>
+            </tbody>
+        </table>
+    </div>
+    <% } %>
+</div>

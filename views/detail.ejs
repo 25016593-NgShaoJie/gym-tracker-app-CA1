@@ -1,0 +1,102 @@
+<%- include('partials/header', { title: workout.name }) %>
+
+<div class="container mt-4">
+    <a href="/workouts" class="back-link">&larr; Back to All Workouts</a>
+
+    <div class="detail-wrapper mt-3">
+        <div class="detail-hero">
+            <div class="d-flex align-items-start justify-content-between flex-wrap gap-2">
+                <div>
+                    <span class="type-badge type-<%= workout.type.toLowerCase().replace(' ', '-') %> mb-2 d-inline-block">
+                        <%= workout.type %>
+                    </span>
+                    <h1 class="detail-title"><%= workout.name %></h1>
+                    <p class="detail-date">
+                        <%= new Date(workout.date).toLocaleDateString('en-SG', {weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }) %>
+                    </p>
+                </div>
+                <div class="d-flex gap-2">
+                    <form method="POST" action="/favourite/<%= workout.id %>">
+                        <button type="submit" class="btn-fav-lg <%= workout.favourite ? 'fav-active' : '' %>">
+                            <%= workout.favourite ? '★ Unfavourite' : '☆ Favourite' %>
+                        </button>
+                    </form>
+                    <a href="/edit/<%= workout.id %>" class="btn btn-add">Edit</a>
+                </div>
+            </div>
+        </div>
+
+        <div class="detail-stats-row">
+            <div class="detail-stat">
+                <span class="detail-stat-val"><%= workout.duration %></span>
+                <span class="detail-stat-lbl">Minutes</span>
+            </div>
+            <div class="detail-stat">
+                <span class="detail-stat-val"><%= workout.calories %></span>
+                <span class="detail-stat-lbl">Calories Burned</span>
+            </div>
+            <div class="detail-stat">
+                <span class="detail-stat-val"><%= workout.intensity %>/5</span>
+                <span class="detail-stat-lbl">Intensity</span>
+            </div>
+            <div class="detail-stat">
+                <span class="detail-stat-val"><%= workout.rating %>/5</span>
+                <span class="detail-stat-lbl">Your Rating</span>
+            </div>
+        </div>
+
+        <div class="detail-body">
+            <div class="detail-section">
+                <h2 class="detail-section-title">Exercises</h2>
+                <div class="exercises-list">
+                    <% workout.exercises.split(',').forEach(ex => { %>
+                    <span class="exercise-chip"><%= ex.trim() %></span>
+                    <% }) %>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h2 class="detail-section-title">Intensity Level</h2>
+                <div class="intensity-bar">
+                    <% for(let i = 1; i <= 5; i++) { %>
+                    <div class="intensity-block <%= i <= workout.intensity ? 'intensity-filled' : '' %>">
+                        <span><%= i %></span>
+                    </div>
+                    <% } %>
+                    <span class="intensity-label">
+                        <% if (workout.intensity <= 1) { %>Easy <% } else if
+                        (workout.intensity <= 2) { %>Light <% } else if
+                        (workout.intensity <= 3) { %>Moderate <% } else if
+                        (workout.intensity <= 4) { %>Hard <% } else { %>Max
+                        Effort<% } %>
+                    </span>
+                </div>
+            </div>
+
+            <div class="detail-section">
+                <h2 class="detail-section-title">Your Rating</h2>
+                <div class="rating-stars-lg">
+                    <% for(let i = 1; i <= 5; i++) { %>
+                    <span class="<%= i <= workout.rating ? 'star-filled' : 'star-empty' %>">★</span>
+                    <% } %>
+                </div>
+            </div>
+
+            <% if (workout.notes) { %>
+            <div class="detail-section">
+                <h2 class="detail-section-title">Notes</h2>
+                <p class="detail-notes"><%= workout.notes %></p>
+            </div>
+            <% } %>
+        </div>
+
+        <div class="detail-actions">
+            <a href="/edit/<%= workout.id %>" class="btn btn-add">✏️ Edit Workout</a>
+            <form method="POST" action="/delete/<%= workout.id %>" class="d-inline">
+                <button type="submit" class="btn btn-danger-custom">
+                    🗑️ Delete
+                </button>
+            </form>
+        </div>
+    </div>
+</div>

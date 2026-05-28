@@ -1,0 +1,100 @@
+<%- include('partials/header', { title: 'Home' }) %>
+
+<section class="hero">
+    <div class="container">
+        <div class="hero-content">
+            <p class="hero-eyebrow">Your Personal Gym Tracker</p>
+            <h1 class="hero-title">TRACK.<br />LIFT.<br />SOAR.</h1>
+            <p class="hero-sub">Log every session. Surpass every goal.</p>
+            <div class="hero-ctas">
+                <a href="/add" class="btn btn-primary-custom">Log Workout</a>
+                <a href="/workouts" class="btn btn-ghost">View All Sessions</a>
+            </div>
+        </div>
+    </div>
+    <div class="hero-bg-text" aria-hidden="true">WORKOUT</div>
+</section>
+
+<section class="stats-bar">
+    <div class="container">
+        <div class="row g-3 justify-content-center">
+            <div class="col-6 col-md-3">
+                <div class="stat-card" name="totalWorkouts">
+                    <span class="stat-number"><%= workouts.length %></span>
+                    <span class="stat-label">Workouts Logged</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card" name="totalCalories">
+                    <span class="stat-number"><%= totalCalories.toLocaleString() %></span>
+                    <span class="stat-label">Total Calories Burned</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card" name="totalMinutes">
+                    <span class="stat-number"><%= totalMinutes %><span class="stat-unit">min</span></span>
+                    <span class="stat-label">Time in the Gym</span>
+                </div>
+            </div>
+            <div class="col-6 col-md-3">
+                <div class="stat-card" name="avgRating">
+                    <span class="stat-number"><%= avgRating %><span class="stat-unit">/5</span></span>
+                    <span class="stat-label"> Average Session Rating </span>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="recent-section">
+    <div class="container">
+        <div class="section-header">
+            <h2 class="section-title">Recent Sessions</h2>
+            <a href="/workouts" class="view-all-link">View all &rarr;</a>
+        </div>
+        <div class="row g-4">
+            <% recent.forEach(w => { %>
+            <div class="col-md-4">
+                <a href="/workouts/<%= w.id %>" class="workout-card-link">
+                    <div class="workout-card">
+                        <div class="workout-card-top">
+                            <span class="type-badge type-<%= w.type.toLowerCase().replace(' ', '-') %>"><%= w.type %></span>
+                            <% if (w.favourite) { %>
+                                <span class="fav-star">★</span>
+                            <% } %>
+                        </div>
+                        <h3 class="workout-card-name"><%= w.name %></h3>
+                        <p class="workout-card-date">
+                            <%= new Date(w.date).toLocaleDateString('en-SG', {day: 'numeric', month: 'short', year: 'numeric' })%>
+                        </p>
+                        <div class="workout-card-meta">
+                            <span>
+                                ⏱ <%= w.duration %> min
+                            </span>
+                            <span>
+                                🔥<%= w.calories %> kcal
+                            </span>
+                        </div>
+                        <div class="rating-stars">
+                            <% for(let i = 1; i <= 5; i++) { %>
+                            <span class="<%= i <= w.rating ? 'star-filled' : 'star-empty' %>">★</span>
+                            <% } %>
+                        </div>
+                    </div>
+                </a>
+            </div>
+            <% }) %>
+        </div>
+    </div>
+</section>
+
+<section class="type-filter-section">
+    <div class="container">
+        <h2 class="section-title">Browse by Type</h2>
+        <div class="type-chips">
+            <% WORKOUT_TYPES.forEach(t => { %>
+            <a href="/workouts?type=<%= t %>" class="type-chip type-<%= t.toLowerCase().replace(' ', '-') %>"><%= t %></a>
+            <% }) %>
+        </div>
+    </div>
+</section>
